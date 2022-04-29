@@ -16,6 +16,13 @@ resource "aws_cloudfront_distribution" "cartographie-nationale" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
 
+  custom_error_response {
+    error_caching_min_ttl = 7200
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
+  }
+
   # S3 Origin
   origin {
     s3_origin_config {
