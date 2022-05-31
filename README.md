@@ -4,6 +4,8 @@
 
 Network infrastructure décrit par le code l'infrastructure à provisionner pour les éléments réseaux de la Cartographie Nationale.
 
+> Ce dépôt n'est pas utile pour faire fonctionner la Cartographie Nationale en local.
+
 ## Table des matières
 
 - 🪧 [À propos](#à-propos)
