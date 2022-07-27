@@ -1,20 +1,27 @@
 data "aws_s3_bucket" "client" {
-  bucket = "${local.product_information.context.project}-${local.service.cartographie-nationale.client.name}"
+  bucket = "${local.product_information.context.project}_${local.service.cartographie_nationale.client.name}"
+}
+
+data "aws_acm_certificate" "acm_certificate" {
+  provider = aws.us-east-1
+  domain   = local.domainName
 }
 
 resource "aws_cloudfront_origin_access_identity" "client" {
-  comment = "S3 cloudfront origin access identity for ${local.service.cartographie-nationale.client.title} service in ${local.projectTitle}"
+  comment = "S3 cloudfront origin access identity for ${local.service.cartographie_nationale.client.title} service in ${local.projectTitle}"
 }
 
 locals {
-  s3_origin_id = "${local.service.cartographie-nationale.client.name}-s3"
+  s3_origin_id = "${local.service.cartographie_nationale.client.name}_s3"
 }
 
-resource "aws_cloudfront_distribution" "cartographie-nationale" {
+resource "aws_cloudfront_distribution" "cartographie_nationale" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
+
+  aliases = [local.domainName]
 
   custom_error_response {
     error_caching_min_ttl = 7200
@@ -61,6 +68,7 @@ resource "aws_cloudfront_distribution" "cartographie-nationale" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
+
   }
 
   tags = local.tags
