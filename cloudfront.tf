@@ -1,5 +1,5 @@
 data "aws_s3_bucket" "client" {
-  bucket = "${local.product_information.context.project}_${local.service.cartographie_nationale.client.name}"
+  bucket = replace("${local.product_information.context.project}_${local.service.cartographie_nationale.client.name}", "_", "-")
 }
 
 data "aws_acm_certificate" "acm_certificate" {
