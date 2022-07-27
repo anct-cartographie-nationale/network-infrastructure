@@ -2,11 +2,6 @@ data "aws_s3_bucket" "client" {
   bucket = replace("${local.product_information.context.project}_${local.service.cartographie_nationale.client.name}", "_", "-")
 }
 
-data "aws_acm_certificate" "acm_certificate" {
-  provider = aws.us-east-1
-  domain   = local.domainName
-}
-
 resource "aws_cloudfront_origin_access_identity" "client" {
   comment = "S3 cloudfront origin access identity for ${local.service.cartographie_nationale.client.title} service in ${local.projectTitle}"
 }
@@ -67,8 +62,9 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
-
+    acm_certificate_arn      = aws_acm_certificate.acm_certificate.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = local.tags
