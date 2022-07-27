@@ -42,7 +42,7 @@ resource "aws_acm_certificate_validation" "certification_main" {
     aws_route53_record.certificate_validation_main.fqdn,
   ]
   timeouts {
-    create = "15m"
+    create = "48h"
   }
 }
 
