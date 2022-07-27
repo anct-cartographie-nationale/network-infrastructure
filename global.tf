@@ -1,7 +1,7 @@
 locals {
   product_information = {
     context : {
-      project    = "cartographie-nationale"
+      project    = "cartographie_nationale"
       layer      = "infrastructure"
       service    = "network"
       start_date = "2022-04-01"
@@ -25,15 +25,20 @@ locals {
 }
 
 locals {
-  projectTitle = title(replace(local.product_information.context.project, "-", " "))
-  layerTitle   = title(replace(local.product_information.context.layer, "-", " "))
-  serviceTitle = title(replace(local.product_information.context.service, "-", " "))
+  projectTitle = title(replace(local.product_information.context.project, "_", " "))
+  layerTitle   = title(replace(local.product_information.context.layer, "_", " "))
+  serviceTitle = title(replace(local.product_information.context.service, "_", " "))
+  domainName   = "tribe-taxi.com"
 }
 
 locals {
   service = {
-    cartographie-nationale = {
-      name = "cartographie-nationale"
+    cartographie_nationale = {
+      name = "cartographie_nationale"
+      api = {
+        name  = "api"
+        title = "api"
+      }
       client = {
         name  = "client"
         title = "client"
