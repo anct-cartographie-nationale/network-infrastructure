@@ -13,7 +13,6 @@ resource "aws_route53_record" "main_name_servers_record" {
 }
 
 resource "aws_acm_certificate" "acm_certificate" {
-  provider                  = aws.us-east-1
   domain_name               = local.domainName
   subject_alternative_names = ["*.${local.domainName}"]
   validation_method         = "DNS"
@@ -43,29 +42,5 @@ resource "aws_acm_certificate_validation" "certification_main" {
   ]
   timeouts {
     create = "48h"
-  }
-}
-
-resource "aws_route53_record" "cartographie_nationale_record_ipv4" {
-  name    = local.service.cartographie_nationale.name
-  zone_id = aws_route53_zone.cartographie_nationale.zone_id
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.cartographie_nationale.domain_name
-    zone_id                = aws_cloudfront_distribution.cartographie_nationale.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-resource "aws_route53_record" "driver_record_ipv6" {
-  name    = local.service.cartographie_nationale.name
-  zone_id = aws_route53_zone.cartographie_nationale.zone_id
-  type    = "AAAA"
-
-  alias {
-    name                   = aws_cloudfront_distribution.cartographie_nationale.domain_name
-    zone_id                = aws_cloudfront_distribution.cartographie_nationale.hosted_zone_id
-    evaluate_target_health = false
   }
 }
