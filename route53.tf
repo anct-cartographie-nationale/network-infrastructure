@@ -13,6 +13,7 @@ resource "aws_route53_record" "main_name_servers_record" {
 }
 
 resource "aws_acm_certificate" "acm_certificate" {
+  provider                  = aws.us-east-1
   domain_name               = local.domainName
   subject_alternative_names = ["*.${local.domainName}"]
   validation_method         = "DNS"
