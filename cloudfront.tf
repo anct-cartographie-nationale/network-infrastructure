@@ -16,7 +16,7 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
 
-  aliases = [local.domainName]
+  aliases = local.domainNames
 
   custom_error_response {
     error_caching_min_ttl = 7200
