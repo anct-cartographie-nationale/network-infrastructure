@@ -57,7 +57,7 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
   restrictions {
     geo_restriction {
       restriction_type = "whitelist"
-      locations        = ["FR"]
+      locations        = ["FR", "ES"]
     }
   }
 
