@@ -72,7 +72,7 @@ resource "aws_route53_record" "cartographie_nationale_record_ipv4" {
   }
 }
 
-resource "aws_route53_record" "driver_record_ipv6" {
+resource "aws_route53_record" "cartographie_nationale_ipv6" {
   for_each = toset(local.domainNames)
   name     = aws_route53_zone.cartographie_nationale[each.key].name
   zone_id  = aws_route53_zone.cartographie_nationale[each.key].zone_id
