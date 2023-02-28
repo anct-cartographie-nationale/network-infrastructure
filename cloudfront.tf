@@ -45,7 +45,7 @@ resource "aws_cloudfront_response_headers_policy" "security_headers_policy" {
       override                   = true
     }
     content_security_policy {
-      content_security_policy = "default-src 'self' data: https://*.data.gouv.fr; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.data.gouv.fr https://*.basemaps.cartocdn.com; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.data.gouv.fr; style-src 'self' 'unsafe-inline';"
+      content_security_policy = "default-src 'self' data: https://*.data.gouv.fr https://openmaptiles.github.io; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.data.gouv.fr; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.data.gouv.fr blob:; style-src 'self' 'unsafe-inline';"
       override                = true
     }
   }
