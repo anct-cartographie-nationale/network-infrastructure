@@ -17,7 +17,7 @@ resource "aws_cloudfront_response_headers_policy" "security_headers_policy" {
     items {
       header   = "permissions-policy"
       override = true
-      value    = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+      value    = "accelerometer=(), camera=(), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
     }
   }
 
@@ -43,6 +43,10 @@ resource "aws_cloudfront_response_headers_policy" "security_headers_policy" {
       include_subdomains         = true
       preload                    = true
       override                   = true
+    }
+    content_security_policy {
+      content_security_policy = "default-src 'self' data: https://*.data.gouv.fr https://openmaptiles.github.io; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.data.gouv.fr; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.data.gouv.fr blob:; style-src 'self' 'unsafe-inline';"
+      override                = true
     }
   }
 }
