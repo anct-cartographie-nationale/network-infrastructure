@@ -1,3 +1,14 @@
+data "terraform_remote_state" "api" {
+  backend = "remote"
+
+  config = {
+    organization = "cartographie-nationale"
+    workspaces = {
+      name = "api-production"
+    }
+  }
+}
+
 data "aws_s3_bucket" "client" {
   bucket = replace("${local.product_information.context.project}_${local.service.cartographie_nationale.client.name}", "_", "-")
 }
@@ -76,6 +87,21 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
     origin_id   = local.s3_origin_id
   }
 
+  # API Gateway Origin
+  origin {
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+
+    domain_name = data.terraform_remote_state.api.outputs.api_host_name
+    origin_id   = data.terraform_remote_state.api.outputs.latest_stage_id
+    origin_path = "/latest"
+  }
+
+  # S3 by default
   default_cache_behavior {
     allowed_methods            = ["GET", "HEAD", "OPTIONS"]
     cached_methods             = ["GET", "HEAD"]
@@ -94,6 +120,28 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
         forward = "none"
       }
     }
+  }
+
+  # API for /api/* routes
+  ordered_cache_behavior {
+    path_pattern     = "/api/*"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = data.terraform_remote_state.api.outputs.latest_stage_id
+
+    forwarded_values {
+      query_string = true
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+    compress               = true
+    viewer_protocol_policy = "https-only"
   }
 
   restrictions {
