@@ -1,3 +1,8 @@
+locals {
+  s3_origin_id = "${local.service.cartographie_nationale.client.name}_s3"
+}
+
+
 data "terraform_remote_state" "api" {
   backend = "remote"
 
@@ -13,12 +18,36 @@ data "aws_s3_bucket" "client" {
   bucket = replace("${local.product_information.context.project}_${local.service.cartographie_nationale.client.name}", "_", "-")
 }
 
-resource "aws_cloudfront_origin_access_identity" "client" {
-  comment = "S3 cloudfront origin access identity for ${local.service.cartographie_nationale.client.title} service in ${local.projectTitle}"
+resource "aws_cloudfront_cache_policy" "api_cache_policy" {
+  name        = "${local.product_information.context.project}-CachingWithQueryParams"
+  default_ttl = 86400
+  max_ttl     = 31536000
+  min_ttl     = 1
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config {
+      cookie_behavior = "none"
+    }
+
+    headers_config {
+      header_behavior = "none"
+    }
+
+    query_strings_config {
+      query_string_behavior = "all"
+    }
+
+    enable_accept_encoding_brotli = true
+    enable_accept_encoding_gzip   = true
+  }
 }
 
-locals {
-  s3_origin_id = "${local.service.cartographie_nationale.client.name}_s3"
+data "aws_cloudfront_origin_request_policy" "api_cloudfront_origin_request_policy" {
+  name = "Managed-AllViewerExceptHostHeader"
+}
+
+resource "aws_cloudfront_origin_access_identity" "client" {
+  comment = "S3 cloudfront origin access identity for ${local.service.cartographie_nationale.client.title} service in ${local.projectTitle}"
 }
 
 resource "aws_cloudfront_response_headers_policy" "security_headers_policy" {
@@ -97,8 +126,7 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
     }
 
     domain_name = data.terraform_remote_state.api.outputs.api_host_name
-    origin_id   = data.terraform_remote_state.api.outputs.latest_stage_id
-    origin_path = "/latest"
+    origin_id   = "api"
   }
 
   # S3 by default
@@ -127,21 +155,16 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
     path_pattern     = "/api/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = data.terraform_remote_state.api.outputs.latest_stage_id
+    target_origin_id = "api"
 
-    forwarded_values {
-      query_string = true
+    cache_policy_id          = aws_cloudfront_cache_policy.api_cache_policy.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.api_cloudfront_origin_request_policy.id
+    viewer_protocol_policy   = "redirect-to-https"
 
-      cookies {
-        forward = "none"
-      }
+    lambda_function_association {
+      event_type = "viewer-request"
+      lambda_arn = aws_lambda_function.remove_api_path_parameter.qualified_arn
     }
-
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-    compress               = true
-    viewer_protocol_policy = "https-only"
   }
 
   restrictions {
