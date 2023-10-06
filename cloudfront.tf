@@ -19,10 +19,10 @@ data "aws_s3_bucket" "client" {
 }
 
 resource "aws_cloudfront_cache_policy" "api_cache_policy" {
-  name        = "${local.product_information.context.project}-CachingWithQueryParams"
+  name        = "${local.product_information.context.project}_caching_with_query_params"
   default_ttl = 86400
   max_ttl     = 31536000
-  min_ttl     = 1
+  min_ttl     = 0
 
   parameters_in_cache_key_and_forwarded_to_origin {
     cookies_config {
@@ -153,9 +153,10 @@ resource "aws_cloudfront_distribution" "cartographie_nationale" {
   # API for /api/* routes
   ordered_cache_behavior {
     path_pattern     = "/api/*"
+    target_origin_id = "api"
     allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "api"
+    compress         = true
 
     cache_policy_id          = aws_cloudfront_cache_policy.api_cache_policy.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.api_cloudfront_origin_request_policy.id
