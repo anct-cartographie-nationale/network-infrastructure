@@ -30,7 +30,14 @@ resource "aws_cloudfront_cache_policy" "api_cache_policy" {
     }
 
     headers_config {
-      header_behavior = "none"
+      header_behavior = "whitelist"
+      headers {
+        items = [
+          "Origin",
+          "Access-Control-Request-Method",
+          "Access-Control-Request-Headers"
+        ]
+      }
     }
 
     query_strings_config {
